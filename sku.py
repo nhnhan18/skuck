@@ -20,8 +20,7 @@ def extract_product_links(url, container_class, start_token, end_token):
     options.add_argument("--window-size=1920x1080")
     
     service = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service, options=options)
-
+    driver = webdriver.Chrome(service=service, options=options)
 
     try:
         driver.get(url)
