@@ -84,8 +84,8 @@ st.title("👜 Trích xuất mã sản phẩm Charles & Keith")
 
 url = st.text_input("🔗 Nhập URL trang web:", "")
 url_prefix = st.text_input(
-    "🌐 Nhập phần đầu URL sản phẩm (prefix để khớp) [mặc định: https://www.charleskeith.vn/vn]",
-    value="https://www.charleskeith.vn/vn"
+    "🌐 Nhập phần đầu URL sản phẩm (prefix để khớp) [mặc định: https://www.charleskeith.vn/vn/]",
+    value="https://www.charleskeith.vn/vn/"
 )
 container_class = st.text_input("📦 Class vùng sản phẩm (để trống nếu muốn quét toàn trang):", "js-product-grid")
 start_token = st.text_input("🔍 Chuỗi bắt đầu để lấy mã:", "/vn/")
