@@ -4,10 +4,9 @@ import time
 import re
 
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
+import chromedriver_autoinstaller
 
 def extract_product_links(url, container_class, start_token, end_token):
     # Cấu hình các tuỳ chọn cho trình duyệt Chrome chạy ở chế độ headless
@@ -18,9 +17,9 @@ def extract_product_links(url, container_class, start_token, end_token):
     options.add_argument("--disable-gpu")  # Tắt GPU (dành cho môi trường headless)
     options.add_argument("--window-size=1920x1080")  # Kích thước cửa sổ trình duyệt
 
-    # Tự động tải và cấu hình ChromeDriver từ webdriver-manager
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
+    # Tự động tải và cài chromedriver tương thích
+    chromedriver_autoinstaller.install()
+    driver = webdriver.Chrome(options=options)
 
     try:
         # Truy cập vào URL được nhập
