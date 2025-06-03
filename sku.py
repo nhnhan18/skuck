@@ -1,4 +1,4 @@
-import undetected_chromedriver as uc
+import undetected-chromedriver as uc
 import time
 from selenium.webdriver.common.by import By
 
