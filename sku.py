@@ -6,6 +6,9 @@ import pandas as pd
 import tempfile
 import time
 import re
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+    
 
 def extract_product_links(url, container_class, start_token, end_token):
     # Thiết lập Chrome headless
@@ -13,7 +16,12 @@ def extract_product_links(url, container_class, start_token, end_token):
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=options)
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920x1080")
+    
+    service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service, options=options)
+
 
     try:
         driver.get(url)
