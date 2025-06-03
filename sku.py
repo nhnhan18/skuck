@@ -1,11 +1,13 @@
-import streamlit as st
 import undetected_chromedriver as uc
+import time
+from selenium.webdriver.common.by import By
 
+def extract_product_links(url, container_class, start_token, end_token):
     options = uc.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    
+
     driver = uc.Chrome(options=options)
 
     try:
