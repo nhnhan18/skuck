@@ -8,18 +8,22 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 import chromedriver_autoinstaller
 
-def extract_product_links(url, container_class, start_token, end_token):
-    # Cấu hình các tuỳ chọn cho trình duyệt Chrome chạy ở chế độ headless
-    options = Options()
-    options.add_argument("--headless")  # Chạy không cần giao diện
-    options.add_argument("--no-sandbox")  # Bỏ sandbox để tránh lỗi phân quyền
-    options.add_argument("--disable-dev-shm-usage")  # Tránh lỗi bộ nhớ chia sẻ
-    options.add_argument("--disable-gpu")  # Tắt GPU (dành cho môi trường headless)
-    options.add_argument("--window-size=1920x1080")  # Kích thước cửa sổ trình duyệt
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service as EdgeService
+from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.common.by import By
 
-    # Tự động tải và cài chromedriver tương thích
-    chromedriver_autoinstaller.install()
-    driver = webdriver.Chrome(options=options)
+def get_driver():
+    options = EdgeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
+
+    # Đường dẫn tới msedgedriver bạn đã tải
+    service = EdgeService(executable_path="C:/path/to/msedgedriver.exe")
+
+    driver = webdriver.Edge(service=service, options=options)
+    return driver
 
     try:
         # Truy cập vào URL được nhập
