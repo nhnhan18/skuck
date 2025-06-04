@@ -4,33 +4,27 @@ import time
 import re
 
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-import chromedriver_autoinstaller
-
-from selenium import webdriver
 from selenium.webdriver.edge.service import Service as EdgeService
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.common.by import By
 
-def get_driver():
+def extract_product_links(url, container_class, start_token, end_token):
+    # Cấu hình trình duyệt Edge ở chế độ headless
     options = EdgeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--headless")  # Chạy không hiển thị giao diện
+    options.add_argument("--disable-gpu")  # Tắt tăng tốc GPU
+    options.add_argument("--window-size=1920,1080")  # Cố định kích thước trình duyệt
 
-    # Đường dẫn tới msedgedriver bạn đã tải
-    service = EdgeService(executable_path="C:/path/to/msedgedriver.exe")
+    # Đường dẫn tuyệt đối đến msedgedriver đã tải về
+    service = EdgeService(executable_path="C:/path/to/msedgedriver.exe")  # ⚠️ Cập nhật đúng đường dẫn trên máy bạn
 
     driver = webdriver.Edge(service=service, options=options)
-    return driver
 
     try:
-        # Truy cập vào URL được nhập
         driver.get(url)
         time.sleep(3)  # Chờ trang tải xong
 
-        # Cuộn trang liên tục để tải toàn bộ sản phẩm (vô hạn scroll)
+        # Cuộn trang để tải toàn bộ sản phẩm (infinite scroll)
         last_height = driver.execute_script("return document.body.scrollHeight")
         unchanged_scroll_count = 0
 
@@ -41,26 +35,25 @@ def get_driver():
             if new_height == last_height:
                 unchanged_scroll_count += 1
                 if unchanged_scroll_count >= 3:
-                    break  # Dừng khi trang không còn cuộn thêm nội dung
+                    break  # Dừng nếu không còn cuộn thêm được
             else:
                 unchanged_scroll_count = 0
                 last_height = new_height
 
-        # Nếu người dùng chỉ định class chứa sản phẩm thì lấy trong vùng đó
+        # Xác định khu vực chứa sản phẩm (nếu có class)
         if container_class:
             product_section = driver.find_element(By.CLASS_NAME, container_class)
             elements = product_section.find_elements(By.TAG_NAME, "a")
         else:
-            elements = driver.find_elements(By.TAG_NAME, "a")  # Ngược lại, lấy tất cả thẻ a trên trang
+            elements = driver.find_elements(By.TAG_NAME, "a")
 
         links = []
         codes = []
 
-        # Lấy phần prefix của URL để tạo regex tìm đúng liên kết sản phẩm
+        # Tạo regex để lọc đúng các link sản phẩm dựa trên URL prefix
         url_prefix = st.session_state.get("url_prefix", "")
-        pattern = rf"^{re.escape(url_prefix)}[A-Z]{{2,3}}\d?-\d+.*\\.html$"  # Regex bắt link sản phẩm đúng định dạng
+        pattern = rf"^{re.escape(url_prefix)}[A-Z]{{2,3}}\d?-\d+.*\.html$"
 
-        # Lọc và trích xuất mã sản phẩm từ các liên kết hợp lệ
         for elem in elements:
             href = elem.get_attribute("href")
             if href and "#" not in href and re.match(pattern, href):
@@ -74,20 +67,18 @@ def get_driver():
         return codes, links
 
     finally:
-        driver.quit()  # Đảm bảo trình duyệt được đóng sau khi xử lý xong
+        driver.quit()
 
-# Cấu hình giao diện và tiêu đề ứng dụng
+# Giao diện Streamlit
 st.set_page_config(page_title="Trích xuất mã sản phẩm", layout="wide")
 st.title("🛒 Trích xuất mã sản phẩm từ website")
 
-# Nhập thông tin từ người dùng
 url = st.text_input("Nhập đường dẫn trang web sản phẩm:")
 container_class = st.text_input("Class vùng sản phẩm (bỏ trống nếu toàn trang):", value="js-product-grid")
 url_prefix = st.text_input("🌐 Nhập phần đầu URL sản phẩm:", value="https://www.charleskeith.vn/vn")
 start_token = st.text_input("🔍 Chuỗi bắt đầu để lấy mã:", value="/vn/")
 end_token = st.text_input("🔚 Chuỗi kết thúc để lấy mã:", value=".html")
 
-# Khi người dùng nhấn nút Trích xuất và đã điền URL hợp lệ
 if st.button("🚀 Trích xuất") and url:
     st.session_state["url_prefix"] = url_prefix
     with st.spinner("Đang tải và xử lý trang web..."):
